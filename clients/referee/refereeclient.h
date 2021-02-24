@@ -1,8 +1,8 @@
 #ifndef REFEREECLIENT_H
 #define REFEREECLIENT_H
 
-#include <clients/client.h>
-#include <include/vssref_command.pb.h>
+#include "../client.h"
+#include "../../include/vssref_command.pb.h"
 
 class RefereeClient : public Client
 {
