@@ -1,9 +1,9 @@
 #ifndef ACTUATORCLIENT_H
 #define ACTUATORCLIENT_H
 
-#include <clients/client.h>
-#include <include/vssref_common.pb.h>
-#include <include/packet.pb.h>
+#include "../client.h"
+#include "../../include/vssref_common.pb.h"
+#include "../../include/packet.pb.h"
 
 class ActuatorClient : public Client
 {
