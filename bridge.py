@@ -33,8 +33,11 @@ from enum import Enum
 try:
     lib = ctypes.cdll.LoadLibrary('./libfira.so')
 except Exception as e:
-    print("Error opening lib! Aborting", e)
-    exit()
+    try: 
+        lib = ctypes.cdll.LoadLibrary('./FIRAClient/libfira.so')
+    except:
+        print("Error opening lib! Aborting", e)
+        exit()
 
 # Default bot number
 NUM_BOTS = 3
