@@ -33,11 +33,14 @@ from enum import Enum
 try:
     lib = ctypes.cdll.LoadLibrary('./libfira.so')
 except Exception as e:
-    try: 
+    try:
         lib = ctypes.cdll.LoadLibrary('./FIRAClient/libfira.so')
-    except:
-        print("Error opening lib! Aborting", e)
-        exit()
+    except Exception as e:
+        try:
+            lib = ctypes.cdll.LoadLibrary('../FIRAClient/libfira.so')
+        except Exception as e:
+            print("Could not open lib in any directory")
+            exit()
 
 # Default bot number
 NUM_BOTS = 3
@@ -158,6 +161,14 @@ class interrupt_type(Enum):
     STOP = 5
     GAME_ON = 6
     HALT = 7
+
+class quadrants(Enum):
+    """Enumerate a list of quadrants types"""
+    NO_QUADRANT = 0
+    QUADRANT_1 = 1
+    QUADRANT_2 = 2
+    QUADRANT_3 = 3
+    QUADRANT_4 = 4
 
 # Client classes
 
@@ -358,7 +369,14 @@ class Referee():
         return self.color() == 1
 
     def get_quadrant(self):
-        """returns quadrant on witch foul happened."""
+        """
+        returns quadrant on witch foul happened from:
+            NO_QUADRANT = 0,
+            QUADRANT_1 = 1,
+            QUADRANT_2 = 2,
+            QUADRANT_3 = 3,
+            QUADRANT_4 = 4,
+        """
         return lib.referee_get_interrupt_quadrant()
 
     def __del__(self):
@@ -404,6 +422,10 @@ class Actuator():
                 self.send(i, s.left, s.right)
             except Exception as e:
                 print("speed exception:", e)
+
+    def stop(self):
+        for i in range(3):
+            self.send(i, 0, 0)
 
     def __del__(self):
         """Closes network conection."""
