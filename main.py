@@ -103,15 +103,10 @@ if __name__ == "__main__":
     speeds = []
     positions = []
 
-    # Initialize our interface client
-    # TODO interface client
-
     # Main infinite loop
     while True:
         referee.update()
         referee.get_data(ref_data)
-
-        # print(ref_data.__dict__)
 
         if ref_data.game_on:
             vision.update()

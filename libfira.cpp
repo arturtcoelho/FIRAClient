@@ -31,7 +31,7 @@ extern "C"
 {
     // function name starts with client function
     // name_init for constructor
-    // name_term for desconstructor
+    // name_term for deconstructor
 
     ////////////////////// Vision //////////////////////// 
 
