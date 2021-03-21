@@ -159,6 +159,18 @@ class interrupt_type(Enum):
     GAME_ON = 6
     HALT = 7
 
+class quadrants(Enum):    
+    NO_QUADRANT = 0
+    QUADRANT_1 = 1
+    QUADRANT_2 = 2
+    QUADRANT_3 = 3
+    QUADRANT_4 = 4
+
+class colors(Enum):
+    BLUE = 0,
+    YELLOW = 1,
+    NONE = 2,
+
 # Client classes
 
 class Vision():
@@ -300,7 +312,7 @@ class Referee():
 
         # we need to convert the string type
         c_string = addr.encode('utf-8')
-        lib.actuator_init.argtypes = [c_char_p, c_uint16, c_bool]
+        lib.referee_init.argtypes = [c_char_p, c_uint16]
 
         lib.referee_init(c_string, c_uint16(port))
         self.update()
@@ -404,6 +416,10 @@ class Actuator():
                 self.send(i, s.left, s.right)
             except Exception as e:
                 print("speed exception:", e)
+
+    def stop(self):
+        for i in range(NUM_BOTS):
+            self.send(i, 0, 0)
 
     def __del__(self):
         """Closes network conection."""
