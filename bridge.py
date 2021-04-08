@@ -23,8 +23,6 @@ from ctypes import c_double, \
 
 from math import fmod, pi
 
-from enum import Enum
-
 # Loads the compiled shared library based on libfira.cpp
 # See README.md to compile and usage
 
@@ -42,12 +40,27 @@ except Exception as e:
             print("Could not open lib in any directory")
             exit()
 
-# Default bot number
+# set the return types for the lib functions (to double)
+lib.vision_get_ball_x.restype = c_double
+lib.vision_get_ball_y.restype = c_double
+lib.vision_get_ball_vx.restype = c_double
+lib.vision_get_ball_vy.restype = c_double
+lib.vision_robot_x.restype = c_double
+lib.vision_robot_y.restype = c_double
+lib.vision_robot_angle.restype = c_double
+lib.vision_robot_vx.restype = c_double
+lib.vision_robot_vy.restype = c_double
+lib.vision_robot_vangle.restype = c_double
+
 NUM_BOTS = 3
 
 LENGTH = 1.7 / 2.0
 WIDTH = 1.3 / 2.0
 
+
+
+# youcan remove or modify these functions as you wish, 
+# these are used here mainly to run the example main 
 def convert_width(w) -> float:
     """
     Converts width from the simulator data to centimetres
@@ -83,97 +96,6 @@ def convert_angle(a) -> float:
     except TypeError:
         return 0
 
-class Object():
-    """
-    Class to generic object position and orientation.
-    """
-    x = 0.0
-    y = 0.0
-    angle = 0.0
-    vx = 0.0
-    vy = 0.0
-    vangle = 0.0
-
-class Objective():
-    """Generic objective""" 
-    x = 0.0
-    y = 0.0
-    angle = 0.0
-
-class Speed():
-    """Generic objective""" 
-    left = 0.0
-    right = 0.0
-
-class Field():
-    """
-    Contains the data fetched from the vision client
-    The team color, and ball and bots locations.
-    """
-
-    def __init__(self, my_robots_are_yellow):
-        """
-        Constructor for the class,
-        initialize atributes to default values.
-        """
-        self.my_robots_are_yellow = my_robots_are_yellow
-        self.ball = None
-        self.our_bots = [[] for _ in range(NUM_BOTS)]
-        self.their_bots = [[] for _ in range(NUM_BOTS)]
-
-    def clean(self):
-        """
-        Clean to default values.
-        """
-        self.ball = None
-        self.our_bots = [[] for _ in range(NUM_BOTS)]
-        self.their_bots = [[] for _ in range(NUM_BOTS)]
-        
-class Ref_data():
-    """
-    Contains the data fetched from the referee client.
-    """
-
-    def __init__(self):
-        """
-        Constructor for the class,
-        initialized to default values.
-        """
-        self.clear()    
-
-    def clear(self):
-        """
-        Set atributes to default values.
-        """
-        self.foul = 7
-        self.game_on = False
-        self.yellow = False
-        self.quad = 0
-        self.is_game_halt = True
-
-class interrupt_type(Enum):
-    """Enumerate a list of foul types"""
-    FREE_KICK = 0
-    PENALTY_KICK = 1
-    GOAL_KICK = 2
-    FREE_BALL = 3
-    KICKOFF = 4
-    STOP = 5
-    GAME_ON = 6
-    HALT = 7
-
-class quadrants(Enum):
-    """Enumerate a list of quadrants types"""
-    NO_QUADRANT = 0
-    QUADRANT_1 = 1
-    QUADRANT_2 = 2
-    QUADRANT_3 = 3
-    QUADRANT_4 = 4
-
-class colors(Enum):
-    BLUE = 0,
-    YELLOW = 1,
-    NONE = 2,
 
 # Client classes
 
@@ -204,31 +126,17 @@ class Vision():
         """Fetches client data."""
         return lib.vision_update_field()
         
-    def fill_field(self, field):
-        """
-        Fills the field with client data
-
-        Stores our_bots, their bots and ball
-        Use after the update method.
-        """
-
-        # Checks parameter type 
-        if (type(field) != Field):
-            raise TypeError(field)
+    def get_field_data(self):
+        
+        field = dict()
         try:
-            # fills respective bots
-            for i in range(NUM_BOTS):
-                if field.my_robots_are_yellow:
-                    field.our_bots[i] = self.get_robot(i, True)
-                    field.their_bots[i] = self.get_robot(i, False)
-                else:
-                    field.our_bots[i] = self.get_robot(i, False)
-                    field.their_bots[i] = self.get_robot(i, True)
-            field.ball = self.get_ball()
-            return field
-        except Exception as e:
-            print(e)
+            field["yellow"] = [self.get_robot(i, True) for i in range(NUM_BOTS)]
+            field["blue"] = [self.get_robot(i, False) for i in range(NUM_BOTS)]
+            field["ball"] = self.get_ball()
+        except TypeError:
             return None
+
+        return field
 
     def get_ball(self):
         """
@@ -237,27 +145,19 @@ class Vision():
         """
 
         try:
-            # set return type for double
-            # speeds typeset
-            lib.vision_get_ball_x.restype = c_double
-            lib.vision_get_ball_y.restype = c_double
-            # positions typeset
-            lib.vision_get_ball_vx.restype = c_double
-            lib.vision_get_ball_vy.restype = c_double
-
             # fills and return the new object
-            ball = Object()
+            ball = dict()
             # positions
-            ball.x = convert_length(lib.vision_get_ball_x())
-            ball.y = convert_width(lib.vision_get_ball_y())
-            # speeds
-            ball.vx = lib.vision_get_ball_vx()
-            ball.vy = lib.vision_get_ball_vy()
-            ball.angle = 0
-
-            return ball
+            ball["x"] = convert_length(lib.vision_get_ball_x())
+            ball["y"] = convert_width(lib.vision_get_ball_y())
+            # speds
+            ball["vx"] = lib.vision_get_ball_vx()
+            ball["vy"] = lib.vision_get_ball_vy()
+            ball["angle"] = 0
         except TypeError:
             return None
+
+        return ball
 
     def get_robot(self, index, yellow):
         """
@@ -267,33 +167,23 @@ class Vision():
         """
 
         try:
-            # set the return type to double
-            # position typeset
-            lib.vision_robot_x.restype = c_double
-            lib.vision_robot_y.restype = c_double
-            lib.vision_robot_angle.restype = c_double
-            # speeds typeset
-            lib.vision_robot_vx.restype = c_double
-            lib.vision_robot_vy.restype = c_double
-            lib.vision_robot_vangle.restype = c_double
-
             # fills and return bot object
             # get position
-            bot = Object()
-            bot.x = convert_length(
+            bot = dict()
+            bot["x"] = convert_length(
                 lib.vision_robot_x(c_int32(index), c_bool(yellow)))
-            bot.y = convert_width(
+            bot["y"] = convert_width(
                 lib.vision_robot_y(c_int32(index), c_bool(yellow)))
-            bot.angle = convert_angle(
+            bot["angle"] = convert_angle(
                 lib.vision_robot_angle(c_int32(index), c_bool(yellow)))
             # get speeds
-            bot.vx = lib.vision_robot_vx(c_int32(index), c_bool(yellow))
-            bot.vy = lib.vision_robot_vy(c_int32(index), c_bool(yellow))
-            bot.vangle = lib.vision_robot_vangle(c_int32(index), c_bool(yellow))
+            bot["vx"] = lib.vision_robot_vx(c_int32(index), c_bool(yellow))
+            bot["vy"] = lib.vision_robot_vy(c_int32(index), c_bool(yellow))
+            bot["vangle"] = lib.vision_robot_vangle(c_int32(index), c_bool(yellow))
 
-            return bot
         except TypeError:
             return None
+        return bot
 
     def __del__(self):
         """Closes network conection"""
@@ -325,19 +215,23 @@ class Referee():
         """Fetches new referee data."""
         lib.referee_update()
 
-    def get_data(self, data):
+    def get_data(self):
         """
         Fills the data structure with the new data from referee
         or default values (game stoped).
         """
-        if (type(data) != Ref_data):
-            raise TypeError(data)
-        data.clear()
-        data.foul = self.interrupt_type()
-        data.game_on = self.is_game_on()
-        data.yellow = self.is_yellow()
-        data.quad = self.get_quadrant()
-        data.is_game_halt = self.interrupt_type() == 7
+        data = dict()
+        
+        try:
+            data["foul"] = self.interrupt_type()
+            data["game_on"] = self.is_game_on()
+            data["yellow"] = self.is_yellow()
+            data["quad"] = self.get_quadrant()
+            data["is_game_halt"] = self.interrupt_type() == 7
+        except TypeError:
+            return None
+
+        return data
 
     def interrupt_type(self):
         """
@@ -422,9 +316,9 @@ class Actuator():
 
     def send_all(self, speeds):
         """sends a list of speed commands"""
-        for i, s in enumerate(speeds):
+        for s in speeds:
             try:
-                self.send(i, s.left, s.right)
+                self.send(s["index"], s["left"], s["right"])
             except Exception as e:
                 print("speed exception:", e)
 
@@ -468,7 +362,7 @@ class Replacer():
         """Sends a list of positions to location"""
         for p in placement:
             try:
-                self.place(p.index, p.x, p.y, p.angle)
+                self.place(p["index"], p["x"], p["y"], p["angle"])
             except Exception as e:
                 print("placement exception:", e)
 

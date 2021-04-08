@@ -1,20 +1,16 @@
 #!/usr/bin/env python3
 
-from bridge import Actuator, Replacer, Vision, Referee, \
-                    Object, Objective, Speed, Field, Ref_data, \
-                    interrupt_type as it, convert_angle, NUM_BOTS
+from bridge import Actuator, Replacer, Vision, Referee, NUM_BOTS, convert_angle
 
 from math import pi, fmod, atan2, fabs
 
-from time import sleep
-
 def main_strategy(field):
     """Sets all objetives to ball coordinates."""
-    ball = field.ball
-    objectives = [Objective() for _ in range(NUM_BOTS)]
+    ball = field["ball"]
+    objectives = [{"index": i} for i in range(NUM_BOTS)]
     for obj in objectives:
-        obj.x = ball.x
-        obj.y = ball.y
+        obj["x"] = ball["x"]
+        obj["y"] = ball["y"]
 
     return objectives
 
@@ -31,9 +27,9 @@ def smallestAngleDiff(target, source):
     return a
 
 
-def controler(field, objectives):
+def controler(field, objectives, mray):
     """Basic PID that sets the speed of each motor to send bot to coordinate"""
-    speeds = [Speed() for _ in range(NUM_BOTS)]
+    speeds = [{"index": i} for i in range(NUM_BOTS)]
 
     for i, s in enumerate(speeds):
         Kp = 20
@@ -45,10 +41,12 @@ def controler(field, objectives):
 
         reversed = False
 
-        angle_rob = field.our_bots[i].angle
+        our_bots = field["yellow"] if mray else field["blue"] 
 
-        angle_obj = atan2( objectives[i].y - field.our_bots[i].y, 
-                            objectives[i].x - field.our_bots[i].x )
+        angle_rob = our_bots[i]["angle"]
+
+        angle_obj = atan2( objectives[i]["y"] - our_bots[i]["y"], 
+                            objectives[i]["x"] - our_bots[i]["x"] )
 
         error = smallestAngleDiff(angle_rob, angle_obj)
 
@@ -63,8 +61,8 @@ def controler(field, objectives):
 
         baseSpeed = 30
 
-        motorSpeed = motorSpeed if motorSpeed < 30 else 30
-        motorSpeed = motorSpeed if motorSpeed > -30 else -30
+        motorSpeed = motorSpeed if motorSpeed < baseSpeed else baseSpeed
+        motorSpeed = motorSpeed if motorSpeed > -baseSpeed else -baseSpeed
 
         if (motorSpeed > 0):
             leftMotorSpeed = baseSpeed
@@ -81,8 +79,8 @@ def controler(field, objectives):
                 leftMotorSpeed = -baseSpeed
                 rightMotorSpeed = -baseSpeed - motorSpeed
 
-        s.left = leftMotorSpeed
-        s.right = rightMotorSpeed
+        s["left"] = leftMotorSpeed
+        s["right"] = rightMotorSpeed
     return speeds
 
 if __name__ == "__main__":
@@ -96,35 +94,26 @@ if __name__ == "__main__":
     vision = Vision("224.0.0.1", 10002)
     referee = Referee("224.5.23.2", 10003)
 
-    # Initialize our data
-    ref_data = Ref_data()
-    field = Field(mray)
-    objectives = []
-    speeds = []
-    positions = []
-
     # Main infinite loop
     while True:
         referee.update()
-        referee.get_data(ref_data)
+        ref_data = referee.get_data()
 
-        if ref_data.game_on:
-            vision.update()
-            vision.fill_field(field)
+        vision.update()
+        field = vision.get_field_data()
+
+        if ref_data["game_on"]:
 
             objectives = main_strategy(field)
 
-            speeds = controler(field, objectives)
+            speeds = controler(field, objectives, mray)
 
             actuator.send_all(speeds)
 
-        elif ref_data.foul != it.HALT:
-
-            # positions = position_strategy(ref_data) # TODO
-
-            replacement.place_all(positions)
+        elif ref_data["foul"] != 7:
+            # foul behaviour
+            actuator.stop()
 
         else:
-            print("Game Halted")
-            sleep(0.1)
             # halt behavior
+            actuator.stop()
