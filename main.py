@@ -27,14 +27,18 @@ def smallestAngleDiff(target, source):
     return a
 
 
-def controler(field, objectives, mray):
+def controller(field, objectives, mray):
     """Basic PID that sets the speed of each motor to send bot to coordinate"""
     speeds = [{"index": i} for i in range(NUM_BOTS)]
 
     for i, s in enumerate(speeds):
         Kp = 20
         Kd = 2.5
-        lastError = 0
+
+        try:
+            controller.lastError
+        except AttributeError:
+            controller.lastError = 0
 
         rightMotorSpeed = 0
         leftMotorSpeed = 0
@@ -55,9 +59,9 @@ def controler(field, objectives, mray):
             angle_rob = convert_angle(angle_rob + pi)
             error = smallestAngleDiff(angle_rob, angle_obj)
 
-        motorSpeed = (Kp * error) + (Kd * (error - lastError))
+        motorSpeed = (Kp * error) + (Kd * (error - controller.lastError))
         
-        lastError = error
+        controller.lastError = error
 
         baseSpeed = 30
 
@@ -91,8 +95,8 @@ if __name__ == "__main__":
     # Initialize all clients
     actuator = Actuator(mray, "127.0.0.1", 20011)
     replacement = Replacer(mray, "224.5.23.2", 10004)
-    vision = Vision("224.0.0.1", 10002)
-    referee = Referee("224.5.23.2", 10003)
+    vision = Vision(mray, "224.0.0.1", 10002)
+    referee = Referee(mray, "224.5.23.2", 10003)
 
     # Main infinite loop
     while True:
@@ -106,7 +110,7 @@ if __name__ == "__main__":
 
             objectives = main_strategy(field)
 
-            speeds = controler(field, objectives, mray)
+            speeds = controller(field, objectives, mray)
 
             actuator.send_all(speeds)
 
