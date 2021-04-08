@@ -219,13 +219,7 @@ extern "C"
     {
         referee->run();
     }
-
-    // return game_on == True
-    int referee_is_game_on()
-    {
-        return referee->getLastFoul() == VSSRef::Foul::GAME_ON;
-    }
-
+    
     // return referee info from:
     // enum Foul : int {
     //     FREE_KICK = 0,

@@ -105,7 +105,7 @@ class Vision():
     Use one instance at a time to minimize network errors.
     """
 
-    def __init__(self, addr = "224.0.0.1", port = 10002):
+    def __init__(self, mray, addr = "224.0.0.1", port = 10002):
         """
         Constructor initialized with adress and port
 
@@ -113,6 +113,8 @@ class Vision():
         default port: 10002
         Fetches the first field.
         """
+
+        self.mray = mray
 
         # we need to convert the string type
         c_string = addr.encode('utf-8')
@@ -132,6 +134,13 @@ class Vision():
         try:
             field["yellow"] = [self.get_robot(i, True) for i in range(NUM_BOTS)]
             field["blue"] = [self.get_robot(i, False) for i in range(NUM_BOTS)]
+            if self.mray:
+                field["our_bots"] = field["yellow"]
+                field["their_bots"] = field["blue"]
+            else:
+                field["our_bots"] = field["blue"]
+                field["their_bots"] = field["yellow"]
+            
             field["ball"] = self.get_ball()
         except TypeError:
             return None
@@ -195,7 +204,7 @@ class Referee():
     Use one instance at a time to minimize network errors.
     """
 
-    def __init__(self, addr = "224.5.23.2", port = 10003):
+    def __init__(self, mray, addr = "224.5.23.2", port = 10003):
         """
         Initialize client on addr and port
 
@@ -203,6 +212,8 @@ class Referee():
         default port: 10003
         Fetches the first data.
         """
+
+        self.mray = mray
 
         # we need to convert the string type
         c_string = addr.encode('utf-8')
@@ -224,10 +235,12 @@ class Referee():
         
         try:
             data["foul"] = self.interrupt_type()
-            data["game_on"] = self.is_game_on()
-            data["yellow"] = self.is_yellow()
+            data["yellow"] = self.color() == 1
             data["quad"] = self.get_quadrant()
-            data["is_game_halt"] = self.interrupt_type() == 7
+            
+            data["game_on"] = data["foul"] == 6
+            data["our"] = data["yellow"] and self.mray
+            data["is_game_halt"] = data["foul"] == 7
         except TypeError:
             return None
 
@@ -249,11 +262,6 @@ class Referee():
         """
         return lib.referee_get_interrupt_type()
 
-    def is_game_on(self):
-        """returns (bool) GAME_ON == True."""
-        return lib.referee_is_game_on()
-
-
     def color(self):
         """
         Returns interrupt color data from libira:
@@ -262,10 +270,6 @@ class Referee():
             NONE = 2,
         """
         return lib.referee_interrupt_color()
-
-    def is_yellow(self):
-        """returns foul color == yellow."""
-        return self.color() == 1
 
     def get_quadrant(self):
         """
