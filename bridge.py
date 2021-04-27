@@ -388,13 +388,13 @@ class Replacer():
 # Base test run
 if __name__ == "__main__":
     try:
-        my_robots_are_yellow = False
+        mray = False
 
         # initializes all classes with default ports
-        vision = Vision(my_robots_are_yellow)
-        referee = Referee(my_robots_are_yellow)
-        actuator = Actuator(my_robots_are_yellow)
-        replacer = Replacer(my_robots_are_yellow)
+        vision = Vision(mray)
+        referee = Referee(mray)
+        actuator = Actuator(mray)
+        replacer = Replacer(mray)
     except Exception as e:
         print("An error occured during execution:", e)
         exit()
