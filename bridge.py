@@ -57,7 +57,15 @@ NUM_BOTS = 3
 LENGTH = 1.7 / 2.0
 WIDTH = 1.3 / 2.0
 
-
+class Entity():
+    def __init__(self, x=0, y=0, vx=0, vy=0, a=0, va=0, index=0):
+        self.x = x
+        self.y = y
+        self.vx = vx
+        self.vy = vy
+        self.a = a 
+        self.va = va
+        self.index = index
 
 # youcan remove or modify these functions as you wish, 
 # these are used here mainly to run the example main 
@@ -131,6 +139,7 @@ class Vision():
     def get_field_data(self):
         
         field = dict()
+        field["mray"] = self.mray
         try:
             field["yellow"] = [self.get_robot(i, True) for i in range(NUM_BOTS)]
             field["blue"] = [self.get_robot(i, False) for i in range(NUM_BOTS)]
@@ -155,14 +164,13 @@ class Vision():
 
         try:
             # fills and return the new object
-            ball = dict()
+            ball = Entity()
             # positions
-            ball["x"] = convert_length(lib.vision_get_ball_x())
-            ball["y"] = convert_width(lib.vision_get_ball_y())
+            ball.x = convert_length(lib.vision_get_ball_x())
+            ball.y = convert_width(lib.vision_get_ball_y())
             # speds
-            ball["vx"] = lib.vision_get_ball_vx()
-            ball["vy"] = lib.vision_get_ball_vy()
-            ball["angle"] = 0
+            ball.vx = lib.vision_get_ball_vx()
+            ball.vy = lib.vision_get_ball_vy()
         except TypeError:
             return None
 
@@ -178,17 +186,18 @@ class Vision():
         try:
             # fills and return bot object
             # get position
-            bot = dict()
-            bot["x"] = convert_length(
+            bot = Entity()
+            bot.x = convert_length(
                 lib.vision_robot_x(c_int32(index), c_bool(yellow)))
-            bot["y"] = convert_width(
+            bot.y = convert_width(
                 lib.vision_robot_y(c_int32(index), c_bool(yellow)))
-            bot["angle"] = convert_angle(
+            bot.a = convert_angle(
                 lib.vision_robot_angle(c_int32(index), c_bool(yellow)))
             # get speeds
-            bot["vx"] = lib.vision_robot_vx(c_int32(index), c_bool(yellow))
-            bot["vy"] = lib.vision_robot_vy(c_int32(index), c_bool(yellow))
-            bot["vangle"] = lib.vision_robot_vangle(c_int32(index), c_bool(yellow))
+            bot.vx = lib.vision_robot_vx(c_int32(index), c_bool(yellow))
+            bot.vy = lib.vision_robot_vy(c_int32(index), c_bool(yellow))
+            bot.va = lib.vision_robot_vangle(c_int32(index), c_bool(yellow))
+            bot.index = index
 
         except TypeError:
             return None
@@ -366,7 +375,7 @@ class Replacer():
         """Sends a list of positions to location"""
         for p in placement:
             try:
-                self.place(p["index"], p["x"], p["y"], p["angle"])
+                self.place(p.index, p.x, p.y, p.a)
             except Exception as e:
                 print("placement exception:", e)
 
