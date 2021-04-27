@@ -391,8 +391,8 @@ if __name__ == "__main__":
         my_robots_are_yellow = False
 
         # initializes all classes with default ports
-        vision = Vision()
-        referee = Referee()
+        vision = Vision(my_robots_are_yellow)
+        referee = Referee(my_robots_are_yellow)
         actuator = Actuator(my_robots_are_yellow)
         replacer = Replacer(my_robots_are_yellow)
     except Exception as e:
