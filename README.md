@@ -65,5 +65,5 @@ You can run the code...
 
 ### Contributors: 
 - [Artur Coelho](https://github.com/arturtcoelho) 
-- [](https://github.com/) 
-- [](https://github.com/) 
+- Gabriel Hishida
+- Allan Cedric
