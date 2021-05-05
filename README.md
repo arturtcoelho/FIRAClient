@@ -60,8 +60,7 @@ This project is capable of:
     ```
 ## Usage
 
-You can run the code...
-<!-- TODO -->
+You can run the code by looking at the main.py example and the bridge.py docstrings
 
 ### Contributors: 
 - [Artur Coelho](https://github.com/arturtcoelho) 
