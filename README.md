@@ -36,7 +36,7 @@ You can install this programs following the instructions on [SETUP.md](https://g
 
 ## Compile
 
-First clone this repository:
+ - First clone this repository:
 
     ```sh
     git clone https://github.com/YapiraUFPR/FIRAClient.git
