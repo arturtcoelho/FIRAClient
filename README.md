@@ -57,6 +57,7 @@ You can install this programs following the instructions on [SETUP.md](https://g
     And then you can test run:
 
     ```sh
+    cd ..
     python3 bridge.py
     ```
 
@@ -66,7 +67,7 @@ You can install this programs following the instructions on [SETUP.md](https://g
 
     This bridge file will be used on the rest of the pytohn program. main.
 
-    Now you can run the code
+    Now you can run the code (make sure you are running both FIRASim and VSSReferee)
 
     ```sh
     ./main.py
