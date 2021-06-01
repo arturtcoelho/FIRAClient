@@ -23,7 +23,7 @@ This project is capable of:
     ```sh
     $ sudo apt install -qq build-essential qtdeclarative5-dev libeigen3-dev protobuf-compiler libprotobuf-dev libdc1394-22 libdc1394-22-dev cmake libv4l-0 libopencv-dev freeglut3-dev python3
     ```
-- FIRASim and VSSSReferee. See [SETUP.md]() to install instructions 
+- FIRASim and VSSSReferee. See [SETUP.md](https://github.com/YapiraUFPR/FIRAClient/blob/main/SETUP.md) to install instructions 
 
 *Tested with: Qt 5.12.8, protoc 3.x, Ubuntu 20.04 LTS. and Ubuntu based Linux (Mint 20.01, Pop!_OS 20.04 LTS)*
 
