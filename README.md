@@ -36,7 +36,12 @@ You can install this programs following the instructions on [SETUP.md](https://g
 
 ## Compile
 
- 1. Compile the protobuf files
+First clone this repository:
+
+    ```sh
+    git clone https://github.com/YapiraUFPR/FIRAClient.git
+    cd FIRAClient
+    ```
 
  - Run the command bellow to generate and compile the clients and the shared object that will be used on the bridge:
 
