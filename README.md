@@ -13,7 +13,6 @@ This project is capable of:
 
 ## Dependencies
 - This set of clients were made to run on Linux
-- The FIRASim simulator and the VSSReferee (see SETUP.md)
 - The build-essential package (`$ sudo apt install build-essential`)
 - [protobuf](https://github.com/google/protobuf)
 - Python3
