@@ -28,7 +28,7 @@ This project is capable of:
 
 ## Simulation
 
-The FIRAClient was built to communicate with some specific programs:
+FIRAClient was built to communicate with some specific programs:
 
 - [FIRASim](https://github.com/robocin/FIRASim): The simulator containing the field and robot environment.
 - [VSSSReferee](https://github.com/VSSSLeague/VSSReferee): A auxiliary program to detect goals, fouls and deal with game interruptions.
