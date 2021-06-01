@@ -23,9 +23,17 @@ This project is capable of:
     ```sh
     $ sudo apt install -qq build-essential qtdeclarative5-dev libeigen3-dev protobuf-compiler libprotobuf-dev libdc1394-22 libdc1394-22-dev cmake libv4l-0 libopencv-dev freeglut3-dev python3
     ```
-- [FIRASim](https://github.com/robocin/FIRASim) and [VSSSReferee](https://github.com/VSSSLeague/VSSReferee). You can install this dependencies following the instructions on [SETUP.md](https://github.com/YapiraUFPR/FIRAClient/blob/main/SETUP.md)
-
+    
 *Tested with: Qt 5.12.8, protoc 3.x, Ubuntu 20.04 LTS. and Ubuntu based Linux (Mint 20.01, Pop!_OS 20.04 LTS)*
+
+## Simulation
+
+The FIRAClient was built to communicate with some specific programs:
+
+- [FIRASim](https://github.com/robocin/FIRASim): The simulator containing the field and robot environment.
+- [VSSSReferee](https://github.com/VSSSLeague/VSSReferee): A auxiliary program to detect goals, fouls and deal with game interruptions.
+ 
+You can install this programs following the instructions on [SETUP.md](https://github.com/YapiraUFPR/FIRAClient/blob/main/SETUP.md)
 
 ## Compile
 
