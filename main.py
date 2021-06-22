@@ -3,15 +3,53 @@
 from bridge import (Actuator, Replacer, Vision, Referee, 
                         NUM_BOTS, convert_angle, Entity)
 
-from math import pi, fmod, atan2, fabs
+from math import pi, fmod, atan2, fabs, sqrt
 
 def main_strategy(field):
     """Sets all objetives to ball coordinates."""
     ball = field["ball"]
     objectives = [Entity(index=i) for i in range(NUM_BOTS)]
-    for obj in objectives:
-        obj.x = ball.x
-        obj.y = ball.y
+
+    mray = field['mray']
+    if mray:
+        if ball.vx > 0:
+            ball_front = True
+        else:         
+            ball_front = False
+    else:
+        if ball.vx < 0:
+            ball_front = True
+        else:         
+            ball_front = False
+
+    BALL_STOPED = 1
+
+    GK_POINT = Entity(x=160, y=65) if mray else Entity(x=11, y=65)
+    DEF_POINT = Entity(x=125, y=45) if mray else Entity(x=45, y=45)
+    ATK_POINT = Entity(x=45, y=45) if mray else Entity(x=125, y=45)
+    ATK_SECONDARY = Entity(x=45, y=85) if mray else Entity(x=125, y=85)
+
+    if (abs(ball.vx) <= BALL_STOPED): # ball isnt moving
+        goalkeeper = GK_POINT
+        defenser = ball
+        atacker = ATK_POINT
+    elif (ball_front): # ball is going back
+        goalkeeper = GK_POINT
+        defenser = ball
+        atacker = DEF_POINT
+    else: # ball is going fowards
+        goalkeeper = ATK_POINT
+        defenser = ATK_SECONDARY
+        atacker = ball
+
+    closer = field['our_bots'].copy()
+    closer.sort(key=lambda k: sqrt((k.x-ball.x)**2 + (k.y-ball.y)**2)) # order in proximity to ball
+
+    back = field['our_bots'].copy()
+    back.sort(key=lambda k: k.x if mray else -k.x) # order in field x location
+
+    objectives = [None for _ in range(NUM_BOTS)]
+    # TODO add gk, def and atk to objecives
 
     return objectives
 
@@ -117,7 +155,7 @@ if __name__ == "__main__":
         vision.update()
         field = vision.get_field_data()
 
-        if ref_data["game_on"]:
+        if ref_data["game_on"] or True:
 
             objectives = main_strategy(field)
 
