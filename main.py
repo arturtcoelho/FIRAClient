@@ -22,37 +22,54 @@ def main_strategy(field):
         else:         
             ball_front = False
 
-    BALL_STOPED = 1
+    BALL_STOPPED = 0.2
 
-    GK_POINT = Entity(x=160, y=65) if mray else Entity(x=11, y=65)
-    DEF_POINT = Entity(x=125, y=45) if mray else Entity(x=45, y=45)
-    ATK_POINT = Entity(x=45, y=45) if mray else Entity(x=125, y=45)
-    ATK_SECONDARY = Entity(x=45, y=85) if mray else Entity(x=125, y=85)
+    GK_POINT =      Entity(x=160, y=65) if mray else Entity(x=11, y=65)
+    DEF_POINT =     Entity(x=125, y=45) if mray else Entity(x=45, y=45)
+    DEF_SECONDARY = Entity(x=125, y=85) if mray else Entity(x=45, y=85)
+    ATK_POINT =     Entity(x=45, y=45)  if mray else Entity(x=125, y=45)
+    ATK_SECONDARY = Entity(x=45, y=85)  if mray else Entity(x=125, y=85)
 
-    if (abs(ball.vx) <= BALL_STOPED): # ball isnt moving
-        goalkeeper = GK_POINT
-        defenser = ball
-        atacker = ATK_POINT
+    # always at the goal
+    goalkeeper = GK_POINT
+    if (abs(ball.vx) <= BALL_STOPPED): # ball isnt moving
+        defenser = DEF_POINT
+        atacker = ball
     elif (ball_front): # ball is going back
-        goalkeeper = GK_POINT
-        defenser = ball
-        atacker = DEF_POINT
+        defenser = DEF_POINT
+        atacker = ball
     else: # ball is going fowards
-        goalkeeper = ATK_POINT
         defenser = ATK_SECONDARY
         atacker = ball
 
+    # if the ball is near any of the three, 
+    # they just go to it
+    if (distance(goalkeeper, ball) < 30):
+        goalkeeper = ball
+    
+    if (distance(atacker, ball) < 30):
+        atacker = ball
+
+    if (distance(defenser, ball) < 30):
+        defenser = ball
+
     closer = field['our_bots'].copy()
-    closer.sort(key=lambda k: sqrt((k.x-ball.x)**2 + (k.y-ball.y)**2)) # order in proximity to ball
+    closer.sort(key=lambda k: distance(k, ball)) # order in proximity to ball
 
     back = field['our_bots'].copy()
     back.sort(key=lambda k: k.x if mray else -k.x) # order in field x location
 
-    objectives = [None for _ in range(NUM_BOTS)]
+    objectives = [Entity(index=c.index) for c in closer]
     # TODO add gk, def and atk to objecives
-
+    objectives[0] = atacker
+    objectives[1] = defenser
+    objectives[2] = goalkeeper
+    
     return objectives
 
+def distance(a, b):
+    return(sqrt((a.x-b.x)**2 + (a.y-b.y)**2))
+  
 def smallestAngleDiff(target, source):
     """Gets the smallest angle between two points in a arch"""
     a = fmod(target + 2*pi, 2*pi) - fmod(source + 2 * pi, 2 * pi)
